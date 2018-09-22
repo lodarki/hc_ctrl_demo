@@ -1,0 +1,17 @@
+server:
+  port: 8080
+
+hc:
+  device:
+    ip: 172.16.0.65
+    port: 8000
+    login: admin
+    password: ai20082018
+  local:
+    host: 172.16.0.113
+    port: 7200
+
+ai:
+  local:
+    host: 172.16.0.10
+    port: 9090
