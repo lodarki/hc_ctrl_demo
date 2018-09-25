@@ -144,24 +144,6 @@ public class CardService {
     }
 
     /**
-     * 断开卡号获取长连接
-     * @param cardGetFtpFlag
-     * @return
-     */
-    public boolean stopCardGetTcpCon(NativeLong cardGetFtpFlag) {
-        if (cardGetFtpFlag.intValue() < 0) {
-            logger.info("没有卡号获取连接建立，无需断开！");
-            return true;
-        }
-        boolean stopSuc = SDKInstance.HC.NET_DVR_StopRemoteConfig(cardGetFtpFlag);
-        if (!stopSuc) {
-            logger.error("断开卡号获取长连接失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * 创建卡号下发的长连接
      * @param hcNetSDK
      * @return
@@ -201,6 +183,12 @@ public class CardService {
         return hcNetSDK.NET_DVR_StartRemoteConfig(LoginService.lUserID, HCNetSDK.NET_DVR_GET_CARD_CFG_V50, lpInBuffer, m_struCardInputParam.size(), cardGetHandler, pUserData);
     }
 
+    /**
+     * 卡号信息获取
+     *
+     * @param cardNo
+     * @return
+     */
     public ApiResult getCardInfo(String cardNo) {
 
         NativeLong cardGetFtpFlag = buildGetCardTcpCon(SDKInstance.HC);

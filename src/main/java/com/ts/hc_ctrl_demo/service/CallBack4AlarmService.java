@@ -6,6 +6,7 @@ import com.sun.jna.Pointer;
 import com.ts.hc_ctrl_demo.common.entity.AlarmDesc;
 import com.ts.hc_ctrl_demo.common.entity.AlarmEventDesc;
 import com.ts.hc_ctrl_demo.hc_java_sdk.HCNetSDK;
+import com.ts.hc_ctrl_demo.hc_java_sdk.entity.COMM_UPLOAD_VIDEO_INTERCOM_EVENT;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
@@ -76,6 +77,10 @@ public class CallBack4AlarmService {
                 logger.info("HCNetSDK.COMM_ID_INFO_ALARM");
                 entity = COMM_ID_INFO_ALARM_info(pAlarmInfo);
                 break;
+            case 0x1132: //COMM_UPLOAD_VIDEO_INTERCOM_EVENT 可视对讲事件记录信息
+                logger.info("COMM_UPLOAD_VIDEO_INTERCOM_EVENT");
+                COMM_UPLOAD_VIDEO_INTERCOM_EVENT_info(pAlarmInfo);
+                break;
             default:
                 logger.info("go default");
                 break;
@@ -86,8 +91,61 @@ public class CallBack4AlarmService {
         HashMap<String, Object> dataMap = new HashMap<>();
         dataMap.put("entity", entity);
         dataMap.put("ip", sIP);
-        logger.info("dataMap : " + JSON.toJSONString(dataMap));
+//        logger.info("dataMap : " + JSON.toJSONString(dataMap));
         return sendAlarmToAiServer(dataMap);
+    }
+
+    private COMM_UPLOAD_VIDEO_INTERCOM_EVENT COMM_UPLOAD_VIDEO_INTERCOM_EVENT_info(Pointer pAlarmInfo) {
+
+        COMM_UPLOAD_VIDEO_INTERCOM_EVENT strCommUploadVideoIntercomEvent = new COMM_UPLOAD_VIDEO_INTERCOM_EVENT();
+        strCommUploadVideoIntercomEvent.write();
+        Pointer pCommUploadVideoIntercomEvent = strCommUploadVideoIntercomEvent.getPointer();
+        pCommUploadVideoIntercomEvent.write(0, pAlarmInfo.getByteArray(0, strCommUploadVideoIntercomEvent.size()), 0, strCommUploadVideoIntercomEvent.size());
+        strCommUploadVideoIntercomEvent.read();
+        return strCommUploadVideoIntercomEvent;
+    }
+
+    private String COMM_ITS_PARK_VEHICLE_info(Pointer pAlarmInfo) {
+        HCNetSDK.NET_ITS_PARK_VEHICLE strItsParkVehicle = new HCNetSDK.NET_ITS_PARK_VEHICLE();
+        strItsParkVehicle.write();
+        Pointer pItsParkVehicle = strItsParkVehicle.getPointer();
+        pItsParkVehicle.write(0, pAlarmInfo.getByteArray(0, strItsParkVehicle.size()), 0, strItsParkVehicle.size());
+        strItsParkVehicle.read();
+        String sAlarmTypeDesc = "";
+        try {
+            String srtParkingNo = new String(strItsParkVehicle.byParkingNo).trim(); //车位编号
+            String srtPlate = new String(strItsParkVehicle.struPlateInfo.sLicense, "GBK").trim(); //车牌号码
+            sAlarmTypeDesc = ",停产场数据,车位编号：" + srtParkingNo + ",车位状态："
+                    + strItsParkVehicle.byLocationStatus + ",车牌：" + srtPlate;
+        } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            logger.error("COMM_ITS_PARK_VEHICLE_info", e);
+        }
+
+        for (int i = 0; i < strItsParkVehicle.dwPicNum; i++) {
+            if (strItsParkVehicle.struPicInfo[i].dwDataLen > 0) {
+                SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
+                String newName = sf.format(new Date());
+                FileOutputStream fos;
+                try {
+                    String filename = newName + "_ITSPark_type" + strItsParkVehicle.struPicInfo[i].byType + ".jpg";
+                    fos = new FileOutputStream(filename);
+                    //将字节写入文件
+                    long offset = 0;
+                    ByteBuffer buffers = strItsParkVehicle.struPicInfo[i].pBuffer.getByteBuffer(offset, strItsParkVehicle.struPicInfo[i].dwDataLen);
+                    byte[] bytes = new byte[strItsParkVehicle.struPicInfo[i].dwDataLen];
+                    buffers.rewind();
+                    buffers.get(bytes);
+                    fos.write(bytes);
+                    fos.close();
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    logger.error("COMM_ITS_PARK_VEHICLE_info", e);
+                }
+            }
+        }
+
+        return sAlarmTypeDesc;
     }
 
     /**
@@ -154,49 +212,6 @@ public class CallBack4AlarmService {
                 logger.error("COMM_ALARM_ACS_info", e);
             }
         }
-        return sAlarmTypeDesc;
-    }
-
-    private String COMM_ITS_PARK_VEHICLE_info(Pointer pAlarmInfo) {
-        HCNetSDK.NET_ITS_PARK_VEHICLE strItsParkVehicle = new HCNetSDK.NET_ITS_PARK_VEHICLE();
-        strItsParkVehicle.write();
-        Pointer pItsParkVehicle = strItsParkVehicle.getPointer();
-        pItsParkVehicle.write(0, pAlarmInfo.getByteArray(0, strItsParkVehicle.size()), 0, strItsParkVehicle.size());
-        strItsParkVehicle.read();
-        String sAlarmTypeDesc = "";
-        try {
-            String srtParkingNo = new String(strItsParkVehicle.byParkingNo).trim(); //车位编号
-            String srtPlate = new String(strItsParkVehicle.struPlateInfo.sLicense, "GBK").trim(); //车牌号码
-            sAlarmTypeDesc = ",停产场数据,车位编号：" + srtParkingNo + ",车位状态："
-                    + strItsParkVehicle.byLocationStatus + ",车牌：" + srtPlate;
-        } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            logger.error("COMM_ITS_PARK_VEHICLE_info", e);
-        }
-
-        for (int i = 0; i < strItsParkVehicle.dwPicNum; i++) {
-            if (strItsParkVehicle.struPicInfo[i].dwDataLen > 0) {
-                SimpleDateFormat sf = new SimpleDateFormat("yyyyMMddHHmmss");
-                String newName = sf.format(new Date());
-                FileOutputStream fos;
-                try {
-                    String filename = newName + "_ITSPark_type" + strItsParkVehicle.struPicInfo[i].byType + ".jpg";
-                    fos = new FileOutputStream(filename);
-                    //将字节写入文件
-                    long offset = 0;
-                    ByteBuffer buffers = strItsParkVehicle.struPicInfo[i].pBuffer.getByteBuffer(offset, strItsParkVehicle.struPicInfo[i].dwDataLen);
-                    byte[] bytes = new byte[strItsParkVehicle.struPicInfo[i].dwDataLen];
-                    buffers.rewind();
-                    buffers.get(bytes);
-                    fos.write(bytes);
-                    fos.close();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    logger.error("COMM_ITS_PARK_VEHICLE_info", e);
-                }
-            }
-        }
-
         return sAlarmTypeDesc;
     }
 
