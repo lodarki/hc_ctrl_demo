@@ -7,7 +7,7 @@
 
     <!--子节点<property>	：用来定义变量值，它有两个属性name和value，通过<property>定义的值会被插入到logger上下文中，可以使“${}”来使用变量。-->
     <property name="APP_Name" value="hc_ctrl_demo"/>
-    <property name="LOG_Path" value="D:\\SPRING_BOOT_LOGS"/>
+    <property name="LOG_Path" value="E:\\SPRING_BOOT_LOGS"/>
 
     <!--用来设置上下文名称，每个logger都关联到logger上下文，默认上下文名称为default。但可以使用<contextName>设置成其他名字，用于区分不同应用程序的记录。一旦设置，不能修改。-->
     <contextName>${APP_Name}</contextName>
@@ -91,6 +91,7 @@
     <!--　　　　level: 用来设置打印级别，大小写无关：TRACE, DEBUG, INFO, WARN, ERROR, ALL和OFF，还有一个特俗值INHERITED或者同义词NULL，代表强制执行上级的级别。 如果未设置此属性，那么当前logger将会继承上级的级别。-->
     <root level="DEBUG">
         <appender-ref ref="fix_rolling_file"/>
+        <appender-ref ref="console_debug"/>
     </root>
     <!--上述配置表示把>=DEBUG级别的日志都输出到fix.log-->
 
