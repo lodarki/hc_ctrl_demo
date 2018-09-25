@@ -3,6 +3,7 @@ package com.ts.hc_ctrl_demo.service;
 import com.sun.jna.NativeLong;
 import com.ts.hc_ctrl_demo.common.entity.ApiResult;
 import com.ts.hc_ctrl_demo.hc_java_sdk.HCNetSDK;
+import com.ts.hc_ctrl_demo.hc_java_sdk.entity.SDKInstance;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -23,7 +24,6 @@ public class AlarmService {
      * @return
      */
     public ApiResult setupAlarmChan(NativeLong lUserID) {
-        HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
         if (lUserID.intValue() == -1) {
             return ApiResult.Error(205, "请先注册！");
         }
@@ -31,7 +31,7 @@ public class AlarmService {
             return ApiResult.Error(205, "已经布防过了！");
         }
 
-        if (!hCNetSDK.NET_DVR_SetDVRMessageCallBack_V31(alarmHandler, null)) {
+        if (!SDKInstance.HC.NET_DVR_SetDVRMessageCallBack_V31(alarmHandler, null)) {
             return ApiResult.Error(500, "设置回调函数失败！");
         }
         HCNetSDK.NET_DVR_SETUPALARM_PARAM strAlarmInfo = new HCNetSDK.NET_DVR_SETUPALARM_PARAM();
@@ -39,7 +39,7 @@ public class AlarmService {
         strAlarmInfo.byLevel = 1;
         strAlarmInfo.byAlarmInfoType = 1;
         strAlarmInfo.write();
-        lAlarmHandleFlag = hCNetSDK.NET_DVR_SetupAlarmChan_V41(lUserID, strAlarmInfo);
+        lAlarmHandleFlag = SDKInstance.HC.NET_DVR_SetupAlarmChan_V41(lUserID, strAlarmInfo);
         if (lAlarmHandleFlag.intValue() == -1) {
             return ApiResult.Error(500, "布防失败！");
         } else {
@@ -48,9 +48,8 @@ public class AlarmService {
     }
 
     public ApiResult closeAlarmChan() {
-        HCNetSDK hCNetSDK = HCNetSDK.INSTANCE;
         if (lAlarmHandleFlag.intValue() > -1) {
-            if (!hCNetSDK.NET_DVR_CloseAlarmChan_V30(lAlarmHandleFlag)) {
+            if (!SDKInstance.HC.NET_DVR_CloseAlarmChan_V30(lAlarmHandleFlag)) {
                 return ApiResult.Error(500, "撤防失败!");
             } else {
                 lAlarmHandleFlag = new NativeLong(-1);

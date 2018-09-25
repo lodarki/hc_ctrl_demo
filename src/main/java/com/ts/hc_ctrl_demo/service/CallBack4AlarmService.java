@@ -23,20 +23,20 @@ import java.util.Date;
 import java.util.HashMap;
 
 @Service
-public class CallBackService {
+public class CallBack4AlarmService {
 
-    private Logger logger = LoggerFactory.getLogger(CallBackService.class);
+    private Logger logger = LoggerFactory.getLogger(CallBack4AlarmService.class);
 
     @Value("${ai.local.host:172.16.0.10}")
     private String aiLocalHost;
     @Value("${ai.local.port:9090}")
     private String aiLocalPort;
 
-    public boolean notice(NativeLong lCommand,
-                          HCNetSDK.NET_DVR_ALARMER pAlarmer,
-                          Pointer pAlarmInfo,
-                          int dwBufLen,
-                          Pointer pUser) {
+    public boolean alarmNotice(NativeLong lCommand,
+                               HCNetSDK.NET_DVR_ALARMER pAlarmer,
+                               Pointer pAlarmInfo,
+                               int dwBufLen,
+                               Pointer pUser) {
 
         int alarmType = lCommand.intValue();
 

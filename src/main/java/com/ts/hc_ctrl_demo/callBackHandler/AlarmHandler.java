@@ -3,7 +3,7 @@ package com.ts.hc_ctrl_demo.callBackHandler;
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
 import com.ts.hc_ctrl_demo.hc_java_sdk.HCNetSDK;
-import com.ts.hc_ctrl_demo.service.CallBackService;
+import com.ts.hc_ctrl_demo.service.CallBack4AlarmService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 public class AlarmHandler implements HCNetSDK.FMSGCallBack_V31 {
 
     @Resource
-    private CallBackService callBackService;
+    private CallBack4AlarmService callBack4AlarmService;
 
     @Override
     public boolean invoke(NativeLong lCommand,
@@ -22,6 +22,6 @@ public class AlarmHandler implements HCNetSDK.FMSGCallBack_V31 {
                           Pointer pUser) {
 
         System.out.println(String.format("lCommand : %d", lCommand.intValue()));
-        return callBackService.notice(lCommand, pAlarmer, pAlarmInfo, dwBufLen, pUser);
+        return callBack4AlarmService.alarmNotice(lCommand, pAlarmer, pAlarmInfo, dwBufLen, pUser);
     }
 }
