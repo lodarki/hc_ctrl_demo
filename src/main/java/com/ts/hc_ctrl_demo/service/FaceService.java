@@ -80,7 +80,7 @@ public class FaceService {
         cond.byFaceID = 1;
         cond.write();
 
-        Pointer lpInBuffer = cond.getPointer();a
+        Pointer lpInBuffer = cond.getPointer();
         return SDKInstance.HC.NET_DVR_StartRemoteConfig(LoginService.lUserID, HCNetSDK.NET_DVR_SET_FACE_PARAM_CFG, lpInBuffer, cond.size(), faceSendHandler, null);
     }
 }
