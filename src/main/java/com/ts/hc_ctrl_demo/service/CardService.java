@@ -26,9 +26,6 @@ public class CardService {
     @Resource
     private CardGetHandler cardGetHandler;
 
-    public static ConcurrentHashMap<String, NativeLong> CardSendConnMap = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<String, NativeLong> CardGetConnMap = new ConcurrentHashMap<>();
-
     private Logger logger = LoggerFactory.getLogger(CardService.class);
 
     /**
@@ -55,7 +52,6 @@ public class CardService {
             return ApiResult.Error(500, "建立长连接失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
         }
 
-        CardSendConnMap.put(cardNo, cardSendFtpFlag);
         // 设置卡参数
         HCNetSDK.NET_DVR_CARD_CFG_V50 struCardInfo = new HCNetSDK.NET_DVR_CARD_CFG_V50(); //卡参数
         struCardInfo.read();
@@ -127,19 +123,7 @@ public class CardService {
             return ApiResult.Error(500, "ENUM_ACS_SEND_DATA失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
         }
 
-        AsyncUtil.runAsync(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (!SDKInstance.HC.NET_DVR_StopRemoteConfig(cardSendFtpFlag)) {
-                logger.error("断开长连接失败，错误号： {} ", SDKInstance.HC.NET_DVR_GetLastError());
-            } else {
-                logger.info("长连接断开成功！");
-            }
-        });
-
+        syncStopRemoteConfig(cardSendFtpFlag);
         return ApiResult.Ok("卡号信息下发成功！");
     }
 
@@ -198,8 +182,6 @@ public class CardService {
 
         logger.info("建立获取卡参数长连接成功!");
 
-        CardGetConnMap.put(cardNo, cardGetFtpFlag);
-
         //查找指定卡号
         HCNetSDK.NET_DVR_CARD_CFG_SEND_DATA m_struCardSendInputParam = new HCNetSDK.NET_DVR_CARD_CFG_SEND_DATA();
         m_struCardSendInputParam.read();
@@ -214,6 +196,22 @@ public class CardService {
             return ApiResult.Error(500, "ENUM_ACS_SEND_DATA失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
         }
 
+        syncStopRemoteConfig(cardGetFtpFlag);
         return ApiResult.Ok("卡号查询请求已发送成功!");
+    }
+
+    private void syncStopRemoteConfig(NativeLong cardGetFtpFlag) {
+        AsyncUtil.runAsync(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (!SDKInstance.HC.NET_DVR_StopRemoteConfig(cardGetFtpFlag)) {
+                logger.error("断开长连接失败，错误号： {} ", SDKInstance.HC.NET_DVR_GetLastError());
+            } else {
+                logger.info("长连接断开成功！");
+            }
+        });
     }
 }

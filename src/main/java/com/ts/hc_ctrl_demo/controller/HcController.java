@@ -116,4 +116,11 @@ public class HcController {
         ApiResult apiResult = cardService.setCardInfo("", cardNo, cardName, "", Integer.valueOf(employeeNo), start, end);
         return apiResult.toJSon();
     }
+
+    @ResponseBody
+    @RequestMapping(value = "getCard")
+    public String getCardInfo(HttpServletRequest request) {
+        String cardNo = request.getParameter("cardNo");
+        return cardService.getCardInfo(cardNo).toJSon();
+    }
 }
