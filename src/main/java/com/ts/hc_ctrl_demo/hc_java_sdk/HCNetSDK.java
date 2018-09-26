@@ -3301,7 +3301,7 @@ public static class NET_DVR_FACE_PARAM_COND extends Structure
 	public byte[] byEnableCardReader = new byte[MAX_CARD_READER_NUM_512];  //人脸的读卡器是否有效，0-无效，1-有效
 	public int dwFaceNum;    //设置或获取人脸数量，获取时置为0xffffffff表示获取所有人脸信息
 	public byte byFaceID;     //人脸编号，有效值范围为1-2   0xff表示该卡所有人脸
-	public byte[] byRes = new byte[127];   //保留
+	public byte[] byRes = new byte[126];   //保留
 }
 
 public static class NET_DVR_FACE_PARAM_CFG extends Structure

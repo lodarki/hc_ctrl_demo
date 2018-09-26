@@ -2,10 +2,7 @@ package com.ts.hc_ctrl_demo.controller;
 
 import com.ts.hc_ctrl_demo.common.entity.ApiResult;
 import com.ts.hc_ctrl_demo.hc_java_sdk.entity.NetDvrTimeEx;
-import com.ts.hc_ctrl_demo.service.AlarmService;
-import com.ts.hc_ctrl_demo.service.CardService;
-import com.ts.hc_ctrl_demo.service.ListenService;
-import com.ts.hc_ctrl_demo.service.LoginService;
+import com.ts.hc_ctrl_demo.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -33,6 +30,9 @@ public class HcController {
 
     @Resource
     private CardService cardService;
+
+    @Resource
+    private FaceService faceService;
 
     /**
      * 登陆
@@ -122,5 +122,13 @@ public class HcController {
     public String getCardInfo(HttpServletRequest request) {
         String cardNo = request.getParameter("cardNo");
         return cardService.getCardInfo(cardNo).toJSon();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "setFace")
+    public String setFaceInfo(HttpServletRequest request) {
+        String cardNo = request.getParameter("cardNo");
+        String picName = request.getParameter("picName");
+        return faceService.setFaceInfo(cardNo, picName).toJSon();
     }
 }

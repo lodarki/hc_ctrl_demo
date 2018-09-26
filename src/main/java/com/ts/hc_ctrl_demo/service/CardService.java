@@ -7,6 +7,7 @@ import com.ts.hc_ctrl_demo.callBackHandler.CardSendHandler;
 import com.ts.hc_ctrl_demo.common.entity.ApiResult;
 import com.ts.hc_ctrl_demo.common.utils.AsyncUtil;
 import com.ts.hc_ctrl_demo.hc_java_sdk.HCNetSDK;
+import com.ts.hc_ctrl_demo.hc_java_sdk.Utils.ConUtils;
 import com.ts.hc_ctrl_demo.hc_java_sdk.entity.NetDvrTimeEx;
 import com.ts.hc_ctrl_demo.hc_java_sdk.entity.SDKInstance;
 import org.slf4j.Logger;
@@ -123,7 +124,7 @@ public class CardService {
             return ApiResult.Error(500, "ENUM_ACS_SEND_DATA失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
         }
 
-        syncStopRemoteConfig(cardSendFtpFlag);
+        ConUtils.syncStopRemoteConfig(cardSendFtpFlag);
         return ApiResult.Ok("卡号信息下发成功！");
     }
 
@@ -196,22 +197,7 @@ public class CardService {
             return ApiResult.Error(500, "ENUM_ACS_SEND_DATA失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
         }
 
-        syncStopRemoteConfig(cardGetFtpFlag);
+        ConUtils.syncStopRemoteConfig(cardGetFtpFlag);
         return ApiResult.Ok("卡号查询请求已发送成功!");
-    }
-
-    private void syncStopRemoteConfig(NativeLong cardGetFtpFlag) {
-        AsyncUtil.runAsync(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            if (!SDKInstance.HC.NET_DVR_StopRemoteConfig(cardGetFtpFlag)) {
-                logger.error("断开长连接失败，错误号： {} ", SDKInstance.HC.NET_DVR_GetLastError());
-            } else {
-                logger.info("长连接断开成功！");
-            }
-        });
     }
 }
