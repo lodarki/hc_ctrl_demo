@@ -17,11 +17,11 @@ public class NET_DVR_UNLOCK_RECORD_INFO extends Structure {
 
     public int dwCardUserID;
 
-    public int nFloorNumber;
+    public short nFloorNumber;
 
     public short wRoomNumber;
 
-    public int wLockID;
+    public short wLockID;
 
     public byte[] byRes = new byte[202];
 

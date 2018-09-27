@@ -31,7 +31,6 @@ public class CardService {
 
     /**
      * 下发卡片信息
-     * @param userId
      * @param cardNo
      * @param cardName
      * @param password
@@ -40,8 +39,7 @@ public class CardService {
      * @param endTimeEx
      * @return
      */
-    public ApiResult setCardInfo(String userId,
-                                 String cardNo,
+    public ApiResult setCardInfo(String cardNo,
                                  String cardName,
                                  String password,
                                  int employeeNo,

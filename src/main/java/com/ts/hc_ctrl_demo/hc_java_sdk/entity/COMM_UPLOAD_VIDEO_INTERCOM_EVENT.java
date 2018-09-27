@@ -9,7 +9,7 @@ public class COMM_UPLOAD_VIDEO_INTERCOM_EVENT extends Structure {
 
     public HCNetSDK.NET_DVR_TIME_EX struTime;
 
-    public byte[] byDevNumber = new byte[64];
+    public byte[] byDevNumber = new byte[HCNetSDK.MAX_DEV_NUMBER_LEN];
 
     public byte byEventType;
 

@@ -1,16 +1,23 @@
 package com.ts.hc_ctrl_demo.controller;
 
 import com.ts.hc_ctrl_demo.common.entity.ApiResult;
+import com.ts.hc_ctrl_demo.hc_java_sdk.Utils.TimeUtils;
 import com.ts.hc_ctrl_demo.hc_java_sdk.entity.NetDvrTimeEx;
 import com.ts.hc_ctrl_demo.service.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 
 @Controller
@@ -97,23 +104,18 @@ public class HcController {
         String cardNo = request.getParameter("cardNo");
         String cardName = request.getParameter("cardName");
         String employeeNo = request.getParameter("employeeNo");
-        String endHour = request.getParameter("endHour");
+        String lastHour = request.getParameter("lastHour");
+
+        int hour = Integer.valueOf(lastHour);
+        if (hour == 0) {
+            return ApiResult.Error(201, "持续小时数不正确！").toJSon();
+        }
+
         Date now = new Date();
-        NetDvrTimeEx start = new NetDvrTimeEx();
-        start.setwYear((short) now.getYear());
-        start.setByMonth((byte) now.getMonth());
-        start.setByDay((byte) now.getDay());
-        start.setByHour((byte) now.getHours());
-        start.setByMinute((byte) now.getMinutes());
-        start.setBySecond((byte) 0);
-        NetDvrTimeEx end = new NetDvrTimeEx();
-        end.setwYear((short) 2018);
-        end.setByMonth((byte) 9);
-        end.setByDay((byte) 25);
-        end.setByHour((byte) Integer.valueOf(endHour).intValue());
-        end.setByMinute((byte) 0);
-        end.setBySecond((byte) 0);
-        ApiResult apiResult = cardService.setCardInfo("", cardNo, cardName, "", Integer.valueOf(employeeNo), start, end);
+        NetDvrTimeEx start = TimeUtils.buildNetDvrTimeEx(now);
+        NetDvrTimeEx end = TimeUtils.buildNetDvrTimeEx(DateUtils.addHours(now, hour));
+
+        ApiResult apiResult = cardService.setCardInfo(cardNo, cardName, "", Integer.valueOf(employeeNo), start, end);
         return apiResult.toJSon();
     }
 
@@ -126,9 +128,23 @@ public class HcController {
 
     @ResponseBody
     @RequestMapping(value = "setFace")
-    public String setFaceInfo(HttpServletRequest request) {
+    public String setFaceInfo(MultipartHttpServletRequest request) {
+
         String cardNo = request.getParameter("cardNo");
-        String picName = request.getParameter("picName");
-        return faceService.setFaceInfo(cardNo, picName).toJSon();
+        MultipartFile picFile = request.getFile("picFile");
+
+        if (StringUtils.isEmpty(cardNo)) {
+            return ApiResult.Error(201, "卡号非法！").toJSon();
+        }
+
+        if (picFile == null) {
+            return ApiResult.Error(201, "缺少文件数据！").toJSon();
+        }
+
+        try {
+            return faceService.setFaceInfo(cardNo, picFile.getBytes()).toJSon();
+        } catch (IOException e) {
+            return ApiResult.Error(500, e.getMessage()).toJSon();
+        }
     }
 }

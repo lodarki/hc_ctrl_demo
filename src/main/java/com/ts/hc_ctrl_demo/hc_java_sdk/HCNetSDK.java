@@ -759,6 +759,8 @@ public interface HCNetSDK extends StdCallLibrary {
 
     public static final int NET_DVR_GET_CARD_RIGHT_WEEK_PLAN_V50 = 2304;  //获取卡权限周计划参数V50
     public static final int NET_DVR_SET_CARD_RIGHT_WEEK_PLAN_V50 = 2305;  //设置卡权限周计划参数V50
+    int MAX_DEV_NUMBER_LEN = 32;
+    int MAX_NOTICE_NUMBER_LEN = 32;
 
     /**********************设备类型 end***********************/
 

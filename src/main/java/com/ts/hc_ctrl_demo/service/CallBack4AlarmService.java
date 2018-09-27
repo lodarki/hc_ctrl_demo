@@ -79,7 +79,7 @@ public class CallBack4AlarmService {
                 break;
             case 0x1132: //COMM_UPLOAD_VIDEO_INTERCOM_EVENT 可视对讲事件记录信息
                 logger.info("COMM_UPLOAD_VIDEO_INTERCOM_EVENT");
-                COMM_UPLOAD_VIDEO_INTERCOM_EVENT_info(pAlarmInfo);
+                entity = COMM_UPLOAD_VIDEO_INTERCOM_EVENT_info(pAlarmInfo);
                 break;
             default:
                 logger.info("go default");
@@ -91,18 +91,37 @@ public class CallBack4AlarmService {
         HashMap<String, Object> dataMap = new HashMap<>();
         dataMap.put("entity", entity);
         dataMap.put("ip", sIP);
-//        logger.info("dataMap : " + JSON.toJSONString(dataMap));
+        logger.info("dataMap : " + JSON.toJSONString(dataMap));
         return sendAlarmToAiServer(dataMap);
     }
 
-    private COMM_UPLOAD_VIDEO_INTERCOM_EVENT COMM_UPLOAD_VIDEO_INTERCOM_EVENT_info(Pointer pAlarmInfo) {
+    private String COMM_UPLOAD_VIDEO_INTERCOM_EVENT_info(Pointer pAlarmInfo) {
 
         COMM_UPLOAD_VIDEO_INTERCOM_EVENT strCommUploadVideoIntercomEvent = new COMM_UPLOAD_VIDEO_INTERCOM_EVENT();
         strCommUploadVideoIntercomEvent.write();
         Pointer pCommUploadVideoIntercomEvent = strCommUploadVideoIntercomEvent.getPointer();
         pCommUploadVideoIntercomEvent.write(0, pAlarmInfo.getByteArray(0, strCommUploadVideoIntercomEvent.size()), 0, strCommUploadVideoIntercomEvent.size());
         strCommUploadVideoIntercomEvent.read();
-        return strCommUploadVideoIntercomEvent;
+
+        int cardNoFromSendCardInfo = 0;
+        for (int i = 0; i < strCommUploadVideoIntercomEvent.uEventInfo.struSendCardInfo.byCardNo.length; i++) {
+            int ioffset = i * 8;
+            int iByte = strCommUploadVideoIntercomEvent.uEventInfo.struSendCardInfo.byCardNo[i] & 0xff;
+            cardNoFromSendCardInfo = cardNoFromSendCardInfo + (iByte << ioffset);
+        }
+
+        int cardNoFromAuthInfo = 0;
+        for (int i = 0; i < strCommUploadVideoIntercomEvent.uEventInfo.struAuthInfo.byCardNo.length; i++) {
+            int ioffset = i * 8;
+            int iByte = strCommUploadVideoIntercomEvent.uEventInfo.struAuthInfo.byCardNo[i] & 0xff;
+            cardNoFromAuthInfo = cardNoFromAuthInfo + (iByte << ioffset);
+        }
+
+        HashMap<String, Integer> result = new HashMap<>();
+        result.put("cardNoFromSendCardInfo", cardNoFromSendCardInfo);
+        result.put("cardNoFromAuthInfo", cardNoFromAuthInfo);
+
+        return JSON.toJSONString(result);
     }
 
     private String COMM_ITS_PARK_VEHICLE_info(Pointer pAlarmInfo) {

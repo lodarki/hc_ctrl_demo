@@ -12,10 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 @Service
 public class FaceService {
@@ -25,7 +21,7 @@ public class FaceService {
     @Resource
     private FaceSendHandler faceSendHandler;
 
-    public ApiResult setFaceInfo(String cardNo, String picName) {
+    public ApiResult setFaceInfo(String cardNo, byte[] picFile) {
 
         NativeLong conFlag = buildFaceSetCon(cardNo);
         if (conFlag.intValue() < 0) {
@@ -39,24 +35,12 @@ public class FaceService {
         config.dwSize = config.size();
         config.byCardNo = cardNo.getBytes();
 
-        try {
-            FileInputStream fis = new FileInputStream(new File("C:\\Users\\44218\\OneDrive\\Pictures\\" + picName + ".jpg"));
-            int picDataLength = fis.available();
-            HCNetSDK.BYTE_ARRAY ptrPicByte = new HCNetSDK.BYTE_ARRAY(picDataLength);
-            int read = fis.read(ptrPicByte.byValue);
-            if (read < 0) {
-                return ApiResult.Error(500, "文件读取错误！");
-            }
-            ptrPicByte.write();
-            config.dwFaceLen = picDataLength;
-            config.pFaceBuffer = ptrPicByte.getPointer();
-        } catch (FileNotFoundException e) {
-            logger.error("FileNotFoundException", e);
-            return ApiResult.Error(500, "照片获取异常！");
-        } catch (IOException e) {
-            logger.error("picDataLength", e);
-            return ApiResult.Error(500, "照片长度读取异常！");
-        }
+        int picDataLength = picFile.length;
+        HCNetSDK.BYTE_ARRAY ptrPicByte = new HCNetSDK.BYTE_ARRAY(picDataLength);
+        ptrPicByte.byValue = picFile;
+        ptrPicByte.write();
+        config.dwFaceLen = picDataLength;
+        config.pFaceBuffer = ptrPicByte.getPointer();
 
         config.byEnableCardReader[0] = 1;
         config.byFaceID = 1;
