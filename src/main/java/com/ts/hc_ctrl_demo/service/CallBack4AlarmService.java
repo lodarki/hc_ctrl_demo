@@ -97,23 +97,39 @@ public class CallBack4AlarmService {
 
     private String COMM_UPLOAD_VIDEO_INTERCOM_EVENT_info(Pointer pAlarmInfo) {
 
-        COMM_UPLOAD_VIDEO_INTERCOM_EVENT strCommUploadVideoIntercomEvent = new COMM_UPLOAD_VIDEO_INTERCOM_EVENT();
-        strCommUploadVideoIntercomEvent.write();
-        Pointer pCommUploadVideoIntercomEvent = strCommUploadVideoIntercomEvent.getPointer();
-        pCommUploadVideoIntercomEvent.write(0, pAlarmInfo.getByteArray(0, strCommUploadVideoIntercomEvent.size()), 0, strCommUploadVideoIntercomEvent.size());
-        strCommUploadVideoIntercomEvent.read();
+        COMM_UPLOAD_VIDEO_INTERCOM_EVENT strIntercomEvent = new COMM_UPLOAD_VIDEO_INTERCOM_EVENT();
+        strIntercomEvent.write();
+        Pointer pIntercomEvent = strIntercomEvent.getPointer();
+        pIntercomEvent.write(0, pAlarmInfo.getByteArray(0, strIntercomEvent.size()), 0, strIntercomEvent.size());
+        strIntercomEvent.read();
+
+        logger.info("strIntercomEvent.dwSize : {}", strIntercomEvent.dwSize);
+        logger.info("strIntercomEvent.struTime.wYear : {}", strIntercomEvent.struTime.wYear);
+        logger.info("strIntercomEvent.struTime.byMonth : {}", strIntercomEvent.struTime.byMonth);
+        logger.info("strIntercomEvent.struTime.byDay : {}", strIntercomEvent.struTime.byDay);
+        logger.info("strIntercomEvent.struTime.byHour : {}", strIntercomEvent.struTime.byHour);
+        logger.info("strIntercomEvent.struTime.byMinute : {}", strIntercomEvent.struTime.byMinute);
+        logger.info("strIntercomEvent.struTime.bySecond : {}", strIntercomEvent.struTime.bySecond);
+        logger.info("strIntercomEvent.struTime.byRes : {}", strIntercomEvent.struTime.byRes);
+        logger.info("strIntercomEvent.uEventInfo.size() : {}", strIntercomEvent.uEventInfo.size());
+        logger.info("strIntercomEvent.struTime.size() : {}" ,strIntercomEvent.struTime.size());
+        logger.info("strIntercomEvent.uEventInfo.size() : {}" ,strIntercomEvent.uEventInfo.size());
+        logger.info("strIntercomEvent.uEventInfo.struUnlockRecord.size() : {}" ,strIntercomEvent.uEventInfo.struUnlockRecord.size());
+        logger.info("strIntercomEvent.uEventInfo.struNoticedataReceipt.size() : {}" ,strIntercomEvent.uEventInfo.struNoticedataReceipt.size());
+        logger.info("strIntercomEvent.uEventInfo.struSendCardInfo.size() : {}" ,strIntercomEvent.uEventInfo.struSendCardInfo.size());
+        logger.info("strIntercomEvent.uEventInfo.struAuthInfo.size() : {}" ,strIntercomEvent.uEventInfo.struAuthInfo.size());
 
         int cardNoFromSendCardInfo = 0;
-        for (int i = 0; i < strCommUploadVideoIntercomEvent.uEventInfo.struSendCardInfo.byCardNo.length; i++) {
+        for (int i = 0; i < strIntercomEvent.uEventInfo.struSendCardInfo.byCardNo.length; i++) {
             int ioffset = i * 8;
-            int iByte = strCommUploadVideoIntercomEvent.uEventInfo.struSendCardInfo.byCardNo[i] & 0xff;
+            int iByte = strIntercomEvent.uEventInfo.struSendCardInfo.byCardNo[i] & 0xff;
             cardNoFromSendCardInfo = cardNoFromSendCardInfo + (iByte << ioffset);
         }
 
         int cardNoFromAuthInfo = 0;
-        for (int i = 0; i < strCommUploadVideoIntercomEvent.uEventInfo.struAuthInfo.byCardNo.length; i++) {
+        for (int i = 0; i < strIntercomEvent.uEventInfo.struAuthInfo.byCardNo.length; i++) {
             int ioffset = i * 8;
-            int iByte = strCommUploadVideoIntercomEvent.uEventInfo.struAuthInfo.byCardNo[i] & 0xff;
+            int iByte = strIntercomEvent.uEventInfo.struAuthInfo.byCardNo[i] & 0xff;
             cardNoFromAuthInfo = cardNoFromAuthInfo + (iByte << ioffset);
         }
 
