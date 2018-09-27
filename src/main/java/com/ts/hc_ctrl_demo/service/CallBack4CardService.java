@@ -61,7 +61,7 @@ public class CallBack4CardService {
     }
 
     public void noticeCardGet(int dwType, Pointer lpBuffer, int dwBufLen, Pointer pUserData) {
-        System.out.println("长连接回调获取数据,NET_SDK_CALLBACK_TYPE_STATUS:" + dwType);
+        logger.info("长连接回调获取数据,NET_SDK_CALLBACK_TYPE_STATUS:" + dwType);
         switch (dwType) {
             case 0: //NET_SDK_CALLBACK_TYPE_STATUS
                 HCNetSDK.REMOTECONFIGSTATUS_CARD struCfgStatus = new HCNetSDK.REMOTECONFIGSTATUS_CARD();
@@ -79,10 +79,10 @@ public class CallBack4CardService {
 
                 switch (iStatus) {
                     case 1000:// NET_SDK_CALLBACK_STATUS_SUCCESS
-                        System.out.println("查询卡参数成功,dwStatus:" + iStatus);
+                        logger.info("查询卡参数成功,dwStatus:" + iStatus);
                         break;
                     case 1001:
-                        System.out.println("正在查询卡参数中,dwStatus:" + iStatus);
+                        logger.info("正在查询卡参数中,dwStatus:" + iStatus);
                         break;
                     case 1002:
                         int iErrorCode = 0;
@@ -91,7 +91,7 @@ public class CallBack4CardService {
                             int iByte = struCfgStatus.byErrorCode[i] & 0xff;
                             iErrorCode = iErrorCode + (iByte << ioffset);
                         }
-                        System.out.println("查询卡参数失败, dwStatus:" + iStatus + "错误号:" + iErrorCode);
+                        logger.info("查询卡参数失败, dwStatus:" + iStatus + "错误号:" + iErrorCode);
                         break;
                 }
                 break;
