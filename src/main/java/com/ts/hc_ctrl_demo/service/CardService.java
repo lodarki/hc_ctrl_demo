@@ -29,6 +29,34 @@ public class CardService {
 
     private Logger logger = LoggerFactory.getLogger(CardService.class);
 
+    public ApiResult delCardInfo(String cardNo) {
+
+        NativeLong cardSendFtpFlag = buildSendCardTcpCon(SDKInstance.HC);
+        if (cardSendFtpFlag.intValue() < 0) {
+            return ApiResult.Error(500, "建立长连接失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
+        }
+
+        logger.info("长连接建立成功！");
+
+        // 设置卡参数
+        HCNetSDK.NET_DVR_CARD_CFG_V50 struCardInfo = new HCNetSDK.NET_DVR_CARD_CFG_V50(); //卡参数
+        struCardInfo.read();
+        struCardInfo.dwSize = struCardInfo.size();
+        struCardInfo.dwModifyParamType = 0x00000001;
+        System.arraycopy(cardNo.getBytes(), 0, struCardInfo.byCardNo, 0, cardNo.length());
+        struCardInfo.byCardValid = 0;
+
+        struCardInfo.write();
+        Pointer pSendBufSet = struCardInfo.getPointer();
+
+        ConUtils.syncStopRemoteConfig(cardSendFtpFlag);
+        // 发送卡信息
+        if (!SDKInstance.HC.NET_DVR_SendRemoteConfig(cardSendFtpFlag, 0x3, pSendBufSet, struCardInfo.size())) {
+            return ApiResult.Error(500, "ENUM_ACS_SEND_DATA失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
+        }
+        return ApiResult.Ok("卡号信息删除请求下发成功！");
+    }
+
     /**
      * 下发卡片信息
      * @param cardNo

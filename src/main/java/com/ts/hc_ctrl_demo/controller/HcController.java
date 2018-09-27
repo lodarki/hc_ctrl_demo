@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -120,14 +121,20 @@ public class HcController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "getCard")
+    @RequestMapping(value = "/delCard")
+    public String delCard(@RequestParam(value = "cardNo") String cardNo) {
+        return cardService.delCardInfo(cardNo).toJSon();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getCard")
     public String getCardInfo(HttpServletRequest request) {
         String cardNo = request.getParameter("cardNo");
         return cardService.getCardInfo(cardNo).toJSon();
     }
 
     @ResponseBody
-    @RequestMapping(value = "setFace")
+    @RequestMapping(value = "/setFace")
     public String setFaceInfo(MultipartHttpServletRequest request) {
 
         String cardNo = request.getParameter("cardNo");
