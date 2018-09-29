@@ -34,15 +34,10 @@ public class LoginService {
     @Resource
     private AlarmService alarmService;
 
-    @Resource
-    private CardService cardService;
-
     public boolean login() {
         if (!SDKInstance.HC.NET_DVR_Init()) {
             return false;
         }
-        //注册
-        hcDeviceIp = "172.16.0.65";
         //注册之前先注销已注册的用户,预览情况下不可注销
         if (lUserID.longValue() > -1) {
             //先注销

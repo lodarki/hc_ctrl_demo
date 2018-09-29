@@ -184,7 +184,7 @@ public class CallBack4AlarmService {
     }
 
     /**
-     * 将报警信息发送给AiServer端
+     * 将报警信息发送给AiLocal端
      *
      * @param dataMap
      * @return
