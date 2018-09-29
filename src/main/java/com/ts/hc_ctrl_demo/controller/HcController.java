@@ -107,6 +107,13 @@ public class HcController {
         String employeeNo = request.getParameter("employeeNo");
         String lastHour = request.getParameter("lastHour");
 
+        if (StringUtils.isEmpty(cardNo)
+                || StringUtils.isEmpty(cardName)
+                || StringUtils.isEmpty(employeeNo)
+                || StringUtils.isEmpty(lastHour)) {
+            return ApiResult.Error(201, "Invalid parameters!").toJSon();
+        }
+
         int hour = Integer.valueOf(lastHour);
         if (hour == 0) {
             return ApiResult.Error(201, "持续小时数不正确！").toJSon();
@@ -146,6 +153,16 @@ public class HcController {
 
         if (picFile == null) {
             return ApiResult.Error(201, "缺少文件数据！").toJSon();
+        }
+
+        try {
+            logger.info("name : {}", picFile.getName());
+            logger.info("contentType : {}", picFile.getContentType());
+            logger.info("OriginalFilename : {}", picFile.getOriginalFilename());
+            logger.info("size : {}", String.valueOf(picFile.getSize()));
+            picFile.transferTo(new File("D:\\1.jpg"));
+        } catch (IOException e) {
+            logger.error("transfer file failed :",e);
         }
 
         try {
