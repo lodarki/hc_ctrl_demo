@@ -63,16 +63,12 @@ public class CardService {
      * @param cardName
      * @param password
      * @param employeeNo
-     * @param startTimeEx
-     * @param endTimeEx
      * @return
      */
     public ApiResult setCardInfo(String cardNo,
                                  String cardName,
                                  String password,
-                                 int employeeNo,
-                                 NetDvrTimeEx startTimeEx,
-                                 NetDvrTimeEx endTimeEx) {
+                                 int employeeNo) {
 
         NativeLong cardSendFtpFlag = buildSendCardTcpCon(SDKInstance.HC);
         if (cardSendFtpFlag.intValue() < 0) {
@@ -106,25 +102,14 @@ public class CardService {
         System.arraycopy(cardNo.getBytes(), 0, struCardInfo.byCardNo, 0, cardNo.length());
 
         struCardInfo.byCardValid = 1;
+        struCardInfo.wRoomNumber = 302;
         struCardInfo.byCardType = 1;
         struCardInfo.byLeaderCard = 0;
         struCardInfo.byDoorRight[0] = 1; //门1有权限
         struCardInfo.wCardRightPlan[0].wRightPlan[0] = 1; //门1关联卡参数计划模板1
 
         //卡有效期
-        struCardInfo.struValid.byEnable = 1;
-        struCardInfo.struValid.struBeginTime.wYear = startTimeEx.getwYear();
-        struCardInfo.struValid.struBeginTime.byMonth = startTimeEx.getByMonth();
-        struCardInfo.struValid.struBeginTime.byDay = startTimeEx.getByDay();
-        struCardInfo.struValid.struBeginTime.byHour = startTimeEx.getByHour();
-        struCardInfo.struValid.struBeginTime.byMinute = startTimeEx.getByMinute();
-        struCardInfo.struValid.struBeginTime.bySecond = startTimeEx.getBySecond();
-        struCardInfo.struValid.struEndTime.wYear = endTimeEx.getwYear();
-        struCardInfo.struValid.struEndTime.byMonth = endTimeEx.getByMonth();
-        struCardInfo.struValid.struEndTime.byDay = endTimeEx.getByDay();
-        struCardInfo.struValid.struEndTime.byHour = endTimeEx.getByHour();
-        struCardInfo.struValid.struEndTime.byMinute = endTimeEx.getByMinute();
-        struCardInfo.struValid.struEndTime.bySecond = endTimeEx.getBySecond();
+        struCardInfo.struValid.byEnable = 0;
 
         struCardInfo.dwMaxSwipeTime = 0; //无次数限制
         struCardInfo.dwSwipeTime = 0; //已刷卡次数

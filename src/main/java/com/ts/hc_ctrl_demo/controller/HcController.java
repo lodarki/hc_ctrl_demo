@@ -1,5 +1,6 @@
 package com.ts.hc_ctrl_demo.controller;
 
+import com.sun.jna.Pointer;
 import com.ts.hc_ctrl_demo.common.entity.ApiResult;
 import com.ts.hc_ctrl_demo.hc_java_sdk.Utils.TimeUtils;
 import com.ts.hc_ctrl_demo.hc_java_sdk.entity.NetDvrTimeEx;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -105,39 +107,44 @@ public class HcController {
         String cardNo = request.getParameter("cardNo");
         String cardName = request.getParameter("cardName");
         String employeeNo = request.getParameter("employeeNo");
-        String lastHour = request.getParameter("lastHour");
 
         if (StringUtils.isEmpty(cardNo)
                 || StringUtils.isEmpty(cardName)
-                || StringUtils.isEmpty(employeeNo)
-                || StringUtils.isEmpty(lastHour)) {
+                || StringUtils.isEmpty(employeeNo)) {
             return ApiResult.Error(201, "Invalid parameters!").toJSon();
         }
 
-        int hour = Integer.valueOf(lastHour);
-        if (hour == 0) {
-            return ApiResult.Error(201, "持续小时数不正确！").toJSon();
-        }
-
-        Date now = new Date();
-        NetDvrTimeEx start = TimeUtils.buildNetDvrTimeEx(now);
-        NetDvrTimeEx end = TimeUtils.buildNetDvrTimeEx(DateUtils.addHours(now, hour));
-
-        ApiResult apiResult = cardService.setCardInfo(cardNo, cardName, "", Integer.valueOf(employeeNo), start, end);
+        ApiResult apiResult = cardService.setCardInfo(cardNo, cardName, "", Integer.valueOf(employeeNo));
         return apiResult.toJSon();
     }
 
     @ResponseBody
     @RequestMapping(value = "/delCard")
     public String delCard(@RequestParam(value = "cardNo") String cardNo) {
-        return cardService.delCardInfo(cardNo).toJSon();
+        logger.info("delete cardNo ......... : {}", StringUtils.trim(cardNo));
+        faceService.delFace(cardNo);
+        return cardService.delCardInfo(StringUtils.trim(cardNo)).toJSon();
+//        return "cardService.delCardInfo(cardNo).toJSon()";
     }
 
     @ResponseBody
     @RequestMapping(value = "/getCard")
     public String getCardInfo(HttpServletRequest request) {
         String cardNo = request.getParameter("cardNo");
+        logger.info("cardNo : {}", cardNo);
         return cardService.getCardInfo(cardNo).toJSon();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/getFace")
+    public String getFaceInfo(HttpServletRequest request) {
+        return faceService.getFaceCfg();
+    }
+
+    @ResponseBody
+    @RequestMapping(value = "/delFace")
+    public String delFaceInfo(HttpServletRequest request) {
+        return faceService.delFace(request.getParameter("cardNo"));
     }
 
     @ResponseBody

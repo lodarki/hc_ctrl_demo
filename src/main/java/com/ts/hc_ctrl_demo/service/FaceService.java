@@ -2,6 +2,7 @@ package com.ts.hc_ctrl_demo.service;
 
 import com.sun.jna.NativeLong;
 import com.sun.jna.Pointer;
+import com.ts.hc_ctrl_demo.callBackHandler.FaceGetHandler;
 import com.ts.hc_ctrl_demo.callBackHandler.FaceSendHandler;
 import com.ts.hc_ctrl_demo.common.entity.ApiResult;
 import com.ts.hc_ctrl_demo.hc_java_sdk.HCNetSDK;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 
 @Service
 public class FaceService {
@@ -20,6 +22,9 @@ public class FaceService {
 
     @Resource
     private FaceSendHandler faceSendHandler;
+
+    @Resource
+    private FaceGetHandler faceGetHandler;
 
     public ApiResult setFaceInfo(String cardNo, byte[] picFile) {
 
@@ -66,5 +71,68 @@ public class FaceService {
 
         Pointer lpInBuffer = cond.getPointer();
         return SDKInstance.HC.NET_DVR_StartRemoteConfig(LoginService.lUserID, HCNetSDK.NET_DVR_SET_FACE_PARAM_CFG, lpInBuffer, cond.size(), faceSendHandler, null);
+    }
+
+    public String getFaceCfg() {
+        int iErr = 0;
+        HCNetSDK.NET_DVR_FACE_PARAM_COND m_struFaceInputParam = new HCNetSDK.NET_DVR_FACE_PARAM_COND();
+        m_struFaceInputParam.dwSize = m_struFaceInputParam.size();
+        m_struFaceInputParam.byCardNo = "070759".getBytes(); //人脸关联的卡号
+        m_struFaceInputParam.byEnableCardReader[0] = 1;
+        m_struFaceInputParam.dwFaceNum = 1;
+        m_struFaceInputParam.byFaceID = 1;
+        m_struFaceInputParam.write();
+
+        Pointer lpInBuffer = m_struFaceInputParam.getPointer();
+        Pointer pUserData = null;
+
+        NativeLong lHandle = SDKInstance.HC.NET_DVR_StartRemoteConfig(LoginService.lUserID, HCNetSDK.NET_DVR_GET_FACE_PARAM_CFG, lpInBuffer, m_struFaceInputParam.size(), faceGetHandler, pUserData);
+        if (lHandle.intValue() < 0) {
+            iErr = SDKInstance.HC.NET_DVR_GetLastError();
+            logger.info("建立长连接失败，错误号：" + iErr);
+            return String.valueOf(iErr);
+        }
+        logger.info( "建立获取卡参数长连接成功!");
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        if (!SDKInstance.HC.NET_DVR_StopRemoteConfig(lHandle)) {
+            iErr = SDKInstance.HC.NET_DVR_GetLastError();
+            logger.info("断开长连接失败，错误号：" + iErr);
+            return String.valueOf(iErr);
+        }
+        logger.info("断开长连接成功!");
+        return "";
+    }
+
+    public String delFace(String cardNo) {
+
+        int iErr = 0;
+        //删除人脸数据
+        HCNetSDK.NET_DVR_FACE_PARAM_CTRL m_struFaceDel = new HCNetSDK.NET_DVR_FACE_PARAM_CTRL();
+        m_struFaceDel.dwSize = m_struFaceDel.size();
+        m_struFaceDel.byMode = 0; //删除方式：0- 按卡号方式删除，1- 按读卡器删除
+
+        m_struFaceDel.struProcessMode.setType(HCNetSDK.NET_DVR_FACE_PARAM_BYCARD.class);
+        m_struFaceDel.struProcessMode.struByCard.byCardNo = cardNo.getBytes();//需要删除人脸关联的卡号
+        m_struFaceDel.struProcessMode.struByCard.byEnableCardReader[0] = 1; //读卡器
+        m_struFaceDel.struProcessMode.struByCard.byFaceID[0] = 1; //人脸ID
+        m_struFaceDel.write();
+
+        Pointer lpInBuffer = m_struFaceDel.getPointer();
+
+        boolean lRemoteCtrl = SDKInstance.HC.NET_DVR_RemoteControl(LoginService.lUserID, HCNetSDK.NET_DVR_DEL_FACE_PARAM_CFG, lpInBuffer, m_struFaceDel.size());
+        if (!lRemoteCtrl) {
+            iErr = SDKInstance.HC.NET_DVR_GetLastError();
+            logger.info("NET_DVR_DEL_FACE_PARAM_CFG删除人脸图片失败，错误号：" + iErr);
+        } else {
+            logger.info("NET_DVR_DEL_FACE_PARAM_CFG成功!");
+        }
+        return "adfadsf";
     }
 }
