@@ -46,6 +46,7 @@ public class HcController {
 
     /**
      * 登陆
+     *
      * @return
      */
     @ResponseBody
@@ -59,6 +60,7 @@ public class HcController {
 
     /**
      * 布防
+     *
      * @return
      */
     @ResponseBody
@@ -69,6 +71,7 @@ public class HcController {
 
     /**
      * 开启监听
+     *
      * @return
      */
     @ResponseBody
@@ -79,6 +82,7 @@ public class HcController {
 
     /**
      * 关闭监听
+     *
      * @return
      */
     @ResponseBody
@@ -90,6 +94,7 @@ public class HcController {
 
     /**
      * 注销
+     *
      * @return
      */
     @ResponseBody
@@ -118,11 +123,22 @@ public class HcController {
         return apiResult.toJSon();
     }
 
+    public static int delFlag = 1;
+
     @ResponseBody
     @RequestMapping(value = "/delCard")
     public String delCard(@RequestParam(value = "cardNo") String cardNo) {
+        if (HcController.delFlag == 1) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        HcController.delFlag = 1;
         logger.info("delete cardNo ......... : {}", StringUtils.trim(cardNo));
         faceService.delFace(cardNo);
+        HcController.delFlag = 0;
         return cardService.delCardInfo(StringUtils.trim(cardNo)).toJSon();
 //        return "cardService.delCardInfo(cardNo).toJSon()";
     }
@@ -169,7 +185,7 @@ public class HcController {
             logger.info("size : {}", String.valueOf(picFile.getSize()));
             picFile.transferTo(new File("D:\\1.jpg"));
         } catch (IOException e) {
-            logger.error("transfer file failed :",e);
+            logger.error("transfer file failed :", e);
         }
 
         try {
