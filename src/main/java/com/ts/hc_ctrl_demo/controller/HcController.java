@@ -123,24 +123,14 @@ public class HcController {
         return apiResult.toJSon();
     }
 
-    public static int delFlag = 1;
-
     @ResponseBody
     @RequestMapping(value = "/delCard")
     public String delCard(@RequestParam(value = "cardNo") String cardNo) {
-        if (HcController.delFlag == 1) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        HcController.delFlag = 1;
+
         logger.info("delete cardNo ......... : {}", StringUtils.trim(cardNo));
         faceService.delFace(cardNo);
-        HcController.delFlag = 0;
-        return cardService.delCardInfo(StringUtils.trim(cardNo)).toJSon();
-//        return "cardService.delCardInfo(cardNo).toJSon()";
+        String result = cardService.delCardInfo(StringUtils.trim(cardNo)).toJSon();
+        return result;
     }
 
     @ResponseBody
@@ -179,13 +169,11 @@ public class HcController {
         }
 
         try {
-            logger.info("name : {}", picFile.getName());
-            logger.info("contentType : {}", picFile.getContentType());
-            logger.info("OriginalFilename : {}", picFile.getOriginalFilename());
-            logger.info("size : {}", String.valueOf(picFile.getSize()));
-            picFile.transferTo(new File("D:\\1.jpg"));
+            logger.info("save file " + "D:\\" + cardNo + ".jpg");
+            picFile.transferTo(new File("D:\\" + cardNo + ".jpg"));
         } catch (IOException e) {
             logger.error("transfer file failed :", e);
+            return ApiResult.Error(201, e.getMessage()).toJSon();
         }
 
         try {

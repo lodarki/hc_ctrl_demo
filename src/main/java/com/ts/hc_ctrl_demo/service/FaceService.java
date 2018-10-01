@@ -51,11 +51,12 @@ public class FaceService {
         config.byFaceID = 1;
         config.byFaceDataType = 1;
         config.write();
-        ConUtils.syncStopRemoteConfig(conFlag);
 
         if (!SDKInstance.HC.NET_DVR_SendRemoteConfig(conFlag, 0x9, config.getPointer(), config.size())) {
             return ApiResult.Error(500, "NET_DVR_SendRemoteConfig失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
         }
+
+        ConUtils.syncStopRemoteConfig(conFlag);
 
         return ApiResult.Ok("成功执行人脸数据的下发！");
     }

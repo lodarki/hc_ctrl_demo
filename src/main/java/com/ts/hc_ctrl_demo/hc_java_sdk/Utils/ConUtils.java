@@ -13,7 +13,7 @@ public class ConUtils {
     public static void syncStopRemoteConfig(NativeLong conFlag) {
         AsyncUtil.runAsync(() -> {
             try {
-                Thread.sleep(1500);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

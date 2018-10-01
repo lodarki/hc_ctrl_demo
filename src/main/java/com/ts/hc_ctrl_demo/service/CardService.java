@@ -130,11 +130,13 @@ public class CardService {
         struCardInfo.write();
         Pointer pSendBufSet = struCardInfo.getPointer();
 
-        ConUtils.syncStopRemoteConfig(cardSendFtpFlag);
         // 发送卡信息
         if (!SDKInstance.HC.NET_DVR_SendRemoteConfig(cardSendFtpFlag, 0x3, pSendBufSet, struCardInfo.size())) {
             return ApiResult.Error(500, "ENUM_ACS_SEND_DATA失败，错误号：" + SDKInstance.HC.NET_DVR_GetLastError());
         }
+
+        ConUtils.syncStopRemoteConfig(cardSendFtpFlag);
+
         return ApiResult.Ok("卡号信息下发成功！");
     }
 
